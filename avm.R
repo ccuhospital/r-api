@@ -198,6 +198,6 @@ main <- function() {
     })
 }
 
-
-predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+# For test
+#predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
   
