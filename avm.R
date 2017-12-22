@@ -41,7 +41,8 @@ con_psql.avm <- dbConnect(drv_psql.avm,
     password = psql.password)
 
 
-.get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat, start.time, end.time) {
+.get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+    start.time, end.time) {
     sql <- sprintf(
         "
         WITH candidate_info AS (
@@ -56,6 +57,7 @@ con_psql.avm <- dbConnect(drv_psql.avm,
             AND recipe = '%s'
             AND ystatistics = '%s'
             AND ysummary_value_hat > '%f'
+            AND ysummary_value_hat <= '%f'
             AND proc_end_time >= '%s'
             AND proc_end_time < '%s'
         )
@@ -64,11 +66,12 @@ con_psql.avm <- dbConnect(drv_psql.avm,
             a.mid
         FROM    
             candidate_info a,
-            cvdu01_fdc_ind_bt b
+            %s b
         WHERE 1=1
         AND a.fdc_ind_id = b.fdc_ind_id
         AND exists ( SELECT 1 FROM avm_ind4model_ht c WHERE c.mid = a.mid AND c.indicator = b.indicator )
-        ",toolid, chamber, recipe, ystatistics, ysummary_value_hat, start.time, end.time
+        ",toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper,
+        start.time, end.time, sprintf("%s_fdc_ind_bt", tolower(toolid))
     )
     rawdata <- dbGetQuery(con_psql.avm, sql)
     return (rawdata)
@@ -151,8 +154,10 @@ mid_mapping <- function(mids) {
 }
 
 
-get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat, start.time, end.time) {
-    predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat, start.time, end.time)
+get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+    start.time, end.time) {
+    predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+        start.time, end.time)
     format.dcast <- formula("glassid ~ indicator")
     ds.ind.h <- dcast(predict_X, formula = format.dcast, fun.aggregate = mean, value.var = "xsummary_value")
     
@@ -180,18 +185,19 @@ main <- function() {
     tryCatch({
         local <- get_trainingx_by_local('2017-09-21 23:00:00', '2017-09-24 03:00:00')
         db <- get_trainingx_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X',
-                                  'l2tfin_uniform', 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+                                  'l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
         predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X',
                                   'l2tfin_uniform', 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
-        return (predict.x)
-    }, error = function(e) {
+        ret <- list(predict = predict.x, local = local, db = db)
+        return (ret)
+    }, error <- function(e) {
         conditionMessage(e)
-    }, finally = {
+    }, finally <- {
         loginfo('Disable dbconnect')
         .psql_disconnectdb
     })
 }
 
 
-predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
   
