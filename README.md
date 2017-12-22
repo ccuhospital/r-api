@@ -1,0 +1,22 @@
+## AVM/RCA-apovshimben
+
+### Descript: 
+For AVM/RCA data clean, there are some function support query predict information from db and read .Rdata 
+
+Normally engineer will prefer to query predict_data from db and with this information to read those nenecessary .Rdata.
+
+Buy this module support not only get those .Rdata from db's information but also can with the time interval to condition, this module can help you do some test on client envrionment to read .Rdata and no need db support, Good luck.
+
+
+### Usage:
+
+```
+# Loading .R file.
+# > source(avm.R)       
+# Get .Rdata with time interval, and return list data structure.
+# > rdata <- get_training_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
+# Get .Rdata with db's information
+# > rdata <- get_training_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','2017-09-21 23:00:00', '2017-09-24 03:00:00')
+# Get predict x
+# > predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','2017-09-21 23:00:00', '2017-09-24 03:00:00')
+```
