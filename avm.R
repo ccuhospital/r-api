@@ -156,9 +156,11 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
     format.dcast <- formula("glassid ~ indicator")
     ds.ind.h <- dcast(predict_X, formula = format.dcast, fun.aggregate = mean, value.var = "xsummary_value")
     
+    # build mid mapping table
     mids <- unique(predict_X$mid)
     mid.dict <- mid_mapping(mids)
     
+    # remove duplicated and sort by predict_x
     gid.noduplicate <- predict_X[!duplicated(predict_X$glassid),] 
     name <- c()
     for (gid in ds.ind.h$glassid) {
@@ -169,19 +171,6 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
             }
         }
     }
-    #mid.dcast <- formula("glassid ~ mid")
-    #mid.ind <- dcast(predict_X, formula = mid.dcast, fun.aggregate = mean, 
-    #    value.var = "xsummary_value")
-    #name <- c()
-    #for(index in 1:nrow(mid.ind)) {
-    #    row <- mid.ind[index,]
-    #    for (mid.index in 2:length(row)) {
-    #        if (is.na(row[mid.index]) == FALSE) {
-    #            name <- c(name, sprintf('MID%s', mid.index-1))
-    #        } 
-    #    }
-    #}
-    
     ds.ind.h <- cbind(name, ds.ind.h)
     return (ds.ind.h)
 }
