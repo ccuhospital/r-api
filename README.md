@@ -10,13 +10,15 @@ Buy this module support not only get those .Rdata from db's information but also
 
 ### Usage:
 
-```
+```shell
 # Loading .R file.
 # > source(avm.R)       
 # Get .Rdata with time interval, and return list data structure.
-# > rdata <- get_training_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
+> rdata <- get_training_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
+
 # Get .Rdata with db's information
-# > rdata <- get_training_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','2017-09-21 23:00:00', '2017-09-24 03:00:00')
+> rdata <- get_training_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+
 # Get predict x
-# > predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','2017-09-21 23:00:00', '2017-09-24 03:00:00')
+> predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 ```
