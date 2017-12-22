@@ -12,7 +12,7 @@ Buy this module support not only get those .Rdata from db's information but also
 
 ```shell
 # Loading .R file.
-# > source(avm.R)       
+> source(avm.R)       
 # Get .Rdata with time interval, and return list data structure.
 > rdata <- get_training_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
 
