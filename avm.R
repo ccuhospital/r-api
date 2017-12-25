@@ -77,7 +77,7 @@ con_psql.avm <- dbConnect(drv_psql.avm,
         WHERE 1=1
         AND a.fdc_ind_id = b.fdc_ind_id
         AND exists ( SELECT 1 FROM avm_ind4model_ht c WHERE c.mid = a.mid AND c.indicator = b.svid||'_'||b.stepid||'_'||b.xstatistics)
-        ",toolid, chamber, recipe, ystatistics, ysummary_value_hat_upper, ysummary_value_hat_lower,
+        ",toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper,
         start.time, end.time, sprintf("%s_fdc_ind_bt", tolower(toolid))
     )
     rawdata <- dbGetQuery(con_psql.avm, sql)
