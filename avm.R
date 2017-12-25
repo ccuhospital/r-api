@@ -11,9 +11,9 @@
 # Loading .R file.
 # > source(avm.R)       
 # Get .Rdata with time interval, and return list data structure.
-# > rdata <- get_training_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
+# > rdata <- get_trainingx_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
 # Get .Rdata with db's information
-# > rdata <- get_training_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+# > rdata <- get_trainingx_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 # Get predict x
 # > predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 
@@ -121,9 +121,11 @@ con_psql.avm <- dbConnect(drv_psql.avm,
 }
 
 
-.get_midrdata_by_db <- function(toolid, chamber, recipe, start.time, end.time) {
+.get_midrdata_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+    start.time, end.time) {
     # timeformat %Y-%m-%d %H:%M:%S
-    predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat, start.time, end.time)
+    predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+        start.time, end.time)
     mids <- unique(predict_X$mid)
     rdata.list <- lapply(mids, function(mid) {
         mid <- sprintf('%s.Rdata', mid)
@@ -139,8 +141,10 @@ get_trainingx_by_local <- function(start.time, end.time) {
 }
 
 
-get_trainingx_by_db <- function(toolid, chamber, recipe, start.time, end.time) {
-    mids <- .get_midrdata_by_db(toolid, chamber, recipe, start.time, end.time)
+get_trainingx_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+    start.time, end.time) {
+    mids <- .get_midrdata_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+        start.time, end.time)
     mid.list <- .save_traing_x(mids)
     return (mid.list)
 }
