@@ -59,8 +59,7 @@ con_psql.avm <- dbConnect(drv_psql.avm,
             AND chamber = '%s'
             AND recipe = '%s'
             AND ystatistics = '%s'
-            AND ysummary_value_hat > '%f'
-            AND ysummary_value_hat <= '%f'
+            AND ysummary_value_hat NOT BETWEEN '%f' AND '%f'
             AND proc_end_time >= '%s'
             AND proc_end_time < '%s'
         )
@@ -206,5 +205,5 @@ main <- function() {
 }
 
 # For test
-#predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
-  
+#predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+
