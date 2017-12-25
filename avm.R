@@ -194,20 +194,24 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
 
 main <- function() {
     tryCatch({
-        local <- get_trainingx_by_local('2017-09-21 23:00:00', '2017-09-24 03:00:00')
+        loginfo('Get local Rdata with time interval')
+        local <- get_trainingx_by_local('2017-09-21 23:00:00', '2017-12-31 00:00:00')
+        loginfo('Get local Rdata with DB')
         db <- get_trainingx_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X',
-                                  'l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+                'l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+        loginfo('Get local predict.x')
         predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X',
-                                  'l2tfin_uniform', 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+                'l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
         ret <- list(predict = predict.x, local = local, db = db)
-        return (ret)
-    }, error <- function(e) {
+    }, error = function(e) {
         conditionMessage(e)
-    }, finally <- {
+    }, finally = {
         loginfo('Disable dbconnect')
-        .psql_disconnectdb
+        .psql_disconnectdb()
     })
+    return (ret)
 }
+
 
 # For test
 #predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
