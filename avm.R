@@ -15,10 +15,10 @@
 #> rdata <- get_trainingx_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
 # Get .Rdata with db's information
 # get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, start.time, end.time)
-#> rdata <- get_trainingx_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+#> rdata <- get_trainingx_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 # Get predict x
 # get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, start.time, end.time)
-#> predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0.1, 1000.0, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+#> predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 
 
 # load necessary package
