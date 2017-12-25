@@ -181,14 +181,17 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
     # remove duplicated and sort by predict_x
     gid.noduplicate <- predict_X[!duplicated(predict_X$glassid),] 
     NAME <- c()
+    ysummary_value_hat <- c()
     for (gid in ds.ind.h$glassid) {
         for (index in 1:nrow(gid.noduplicate)) {
             row <- gid.noduplicate[index,]
             if (gid == row$glassid) {
                 NAME <- c(NAME, mid.dict[[row$mid]])
+                ysummary_value_hat <- c(ysummary_value_hat, row$ysummary_value_hat)
             }
         }
     }
+    ds.ind.h <- cbind(ysummary_value_hat, ds.ind.h)
     ds.ind.h <- cbind(NAME, ds.ind.h)
     return (ds.ind.h)
 }
