@@ -14,10 +14,10 @@
 # get_traingingx_by_local(start.time, end.time)
 #> rdata <- get_trainingx_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
 # Get .Rdata with db's information
-# get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, start.time, end.time)
+# get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 #> rdata <- get_trainingx_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 # Get predict x
-# get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, start.time, end.time)
+# get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 #> predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 
 
@@ -44,7 +44,7 @@ con_psql.avm <- dbConnect(drv_psql.avm,
     password = psql.password)
 
 
-.get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+.get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
     sql <- sprintf(
         "
@@ -73,7 +73,7 @@ con_psql.avm <- dbConnect(drv_psql.avm,
         WHERE 1=1
         AND a.fdc_ind_id = b.fdc_ind_id
         AND exists ( SELECT 1 FROM avm_ind4model_ht c WHERE c.mid = a.mid AND c.indicator = b.indicator )
-        ",toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper,
+        ",toolid, chamber, recipe, ystatistics, ysummary_value_hat_upper, ysummary_value_hat_lower,
         start.time, end.time, sprintf("%s_fdc_ind_bt", tolower(toolid))
     )
     rawdata <- dbGetQuery(con_psql.avm, sql)
@@ -124,10 +124,10 @@ con_psql.avm <- dbConnect(drv_psql.avm,
 }
 
 
-.get_midrdata_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+.get_midrdata_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
     # timeformat %Y-%m-%d %H:%M:%S
-    predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+    predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
     mids <- unique(predict_X$mid)
     rdata.list <- lapply(mids, function(mid) {
@@ -144,9 +144,9 @@ get_trainingx_by_local <- function(start.time, end.time) {
 }
 
 
-get_trainingx_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+get_trainingx_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
-    mids <- .get_midrdata_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+    mids <- .get_midrdata_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
     mid.list <- .save_traing_x(mids)
     return (mid.list)
@@ -161,9 +161,9 @@ mid_mapping <- function(mids) {
 }
 
 
-get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
-    predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat, ysummary_value_hat_upper, 
+    predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
     format.dcast <- formula("glassid ~ indicator")
     ds.ind.h <- dcast(predict_X, formula = format.dcast, fun.aggregate = mean, value.var = "xsummary_value")
