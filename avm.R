@@ -51,6 +51,7 @@ con_psql.avm <- dbConnect(drv_psql.avm,
         WITH candidate_info AS (
             SELECT 
                 glassid,
+                ysummary_value_hat,
                 mid,
                 regexp_split_to_table(fdc_ind_id, \'\\|')::integer as fdc_ind_id
             FROM
@@ -66,6 +67,7 @@ con_psql.avm <- dbConnect(drv_psql.avm,
         )
         SELECT 
             a.glassid,
+            a.ysummary_value_hat,
             a.mid,
             b.stepid,
             b.svid||'_'||b.stepid||'_'||b.xstatistics as indicator,
