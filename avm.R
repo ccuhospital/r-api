@@ -50,6 +50,7 @@ con_psql.avm <- dbConnect(drv_psql.avm,
         "
         WITH candidate_info AS (
             SELECT 
+                glassid,
                 mid,
                 regexp_split_to_table(fdc_ind_id, \'\\|')::integer as fdc_ind_id
             FROM
@@ -64,14 +65,18 @@ con_psql.avm <- dbConnect(drv_psql.avm,
             AND proc_end_time < '%s'
         )
         SELECT 
-            b.*,
-            a.mid
+            a.glassid,
+            a.mid,
+            b.stepid,
+            b.svid||'_'||b.stepid||'_'||b.xstatistics as indicator,
+            b.xsummary_value,
+            b.fdc_ind_id
         FROM    
             candidate_info a,
             %s b
         WHERE 1=1
         AND a.fdc_ind_id = b.fdc_ind_id
-        AND exists ( SELECT 1 FROM avm_ind4model_ht c WHERE c.mid = a.mid AND c.indicator = b.indicator )
+        AND exists ( SELECT 1 FROM avm_ind4model_ht c WHERE c.mid = a.mid AND c.indicator = b.svid||'_'||b.stepid||'_'||b.xstatistics)
         ",toolid, chamber, recipe, ystatistics, ysummary_value_hat_upper, ysummary_value_hat_lower,
         start.time, end.time, sprintf("%s_fdc_ind_bt", tolower(toolid))
     )
