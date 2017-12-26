@@ -5,13 +5,13 @@
 # backend api for fontend web interface.
 # 
 #Usage:
-# ret <- get_predict(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+# ret <- get_rca(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
 #    start.time, end.time)
 oldw <- getOption("warn")
 options(warn = 1)
 
 
-get_predict <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+get_rca <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
     # rca api: get_predict
     # return list datastructure: TRAINING_X, PREDICT_X_INFO, Ystat

@@ -2,3 +2,5 @@ env.R
 *.csv
 AVM/
 .Rhistory
+Bash_Output/
+.Rdata
