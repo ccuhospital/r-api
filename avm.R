@@ -1,6 +1,9 @@
 #FileName: 
 # avm.R (RCA-apovshimben)
 # 
+#Author: 
+# yc
+#
 #Descript: 
 # For AVM/RCA data clean, there are some function support query predict information from db and read .Rdata 
 # Normally engineer will prefer to query predict_data from db and with this information to read those nenecessary .Rdata.
@@ -99,13 +102,9 @@ con_psql.avm <- dbConnect(drv_psql.avm,
 
 .read_midrdata <- function(mid) {
     # internal
-    tryCatch({
-        rdata <- sprintf("%s%s", PATH, mid)
-        data <- lapply(rdata, function(x) mget(load(x)))
-        return (data)
-    }, error = function(e) {
-        conditionMessage(e)
-    }) 
+    rdata <- sprintf("%s%s", PATH, mid)
+    data <- lapply(rdata, function(x) mget(load(x)))
+    return (data)
 }
 
 
@@ -144,6 +143,10 @@ con_psql.avm <- dbConnect(drv_psql.avm,
     # timeformat %Y-%m-%d %H:%M:%S
     predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
+    if (nrow(predict_X) == 0) {
+        loginfo('No data in this conditional.')
+        return ()
+    }
     mids <- unique(predict_X$mid)
     rdata.list <- lapply(mids, function(mid) {
         mid <- sprintf('%s.Rdata', mid)
@@ -163,6 +166,9 @@ get_trainingx_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_v
     start.time, end.time) {
     mids <- .get_midrdata_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
+    if (is.null(mids)) {
+        return ()
+    }
     mid.list <- .save_traing_x(mids)
     return (mid.list)
 }
@@ -181,10 +187,9 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
     predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
     if (nrow(predict_X) == 0) {
-        print ('No data in this conditional.')
+        loginfo('No data in this conditional.')
         return ()
     }
-
     format.dcast <- formula("glassid ~ indicator")
     ds.ind.h <- dcast(predict_X, formula = format.dcast, fun.aggregate = mean, value.var = "xsummary_value")
     
@@ -212,6 +217,7 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
 
 
 main <- function() {
+    # sample main function
     tryCatch({
         loginfo('Get local Rdata with time interval')
         local <- get_trainingx_by_local('2017-09-21 23:00:00', '2017-12-31 00:00:00')
