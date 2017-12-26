@@ -6,7 +6,7 @@
 # PREDICT_X_INFO
 # Ystat
 #
-#Aruther: Ma (2017/12/25)
+##Author: Ma (2017/12/25)
 #
 
 library(pls)
