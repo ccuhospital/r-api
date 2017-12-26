@@ -64,21 +64,26 @@ con_psql.avm <- dbConnect(drv_psql.avm,
             AND ysummary_value_hat NOT BETWEEN '%f' AND '%f'
             AND proc_end_time >= '%s'
             AND proc_end_time < '%s'
+        ),
+        indicator_info AS (
+            SELECT distinct indicator FROM avm_ind4model_ht t WHERE t.mid in ( SELECT distinct mid FROM candidate_info )
         )
-        SELECT 
+        SELECT
             a.glassid,
             a.ysummary_value_hat,
-            a.mid,
             b.stepid,
-            b.svid||'_'||b.stepid||'_'||b.xstatistics as indicator,
+            c.indicator,
             b.xsummary_value,
-            b.fdc_ind_id
+            b.fdc_ind_id,
+            a.mid
         FROM    
             candidate_info a,
-            %s b
+            %s b,
+            indicator_info c
         WHERE 1=1
         AND a.fdc_ind_id = b.fdc_ind_id
-        AND exists ( SELECT 1 FROM avm_ind4model_ht c WHERE c.mid = a.mid AND c.indicator = b.svid||'_'||b.stepid||'_'||b.xstatistics)
+        AND b.svid||'_'||b.stepid||'_'||b.xstatistics = c.indicator
+        ORDER BY a.mid
         ",toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper,
         start.time, end.time, sprintf("%s_fdc_ind_bt", tolower(toolid))
     )
@@ -179,11 +184,11 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
     mid.dict <- mid_mapping(mids)
     
     # remove duplicated and sort by predict_x
-    gid.noduplicate <- predict_X[!duplicated(predict_X$glassid),] 
+    gid.noduplicate <- predict_X[!duplicated(predict_X$glassid),]
     NAME <- c()
     ysummary_value_hat <- c()
-    for (gid in ds.ind.h$glassid) {
-        for (index in 1:nrow(gid.noduplicate)) {
+    for (index in 1:nrow(gid.noduplicate)) {
+        for (gid in ds.ind.h$glassid) {
             row <- gid.noduplicate[index,]
             if (gid == row$glassid) {
                 NAME <- c(NAME, mid.dict[[row$mid]])
