@@ -179,7 +179,7 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
     if (nrow(predict.x) == 0) {
         return ('No data in this conditional.')
     }
-    
+
     format.dcast <- formula("glassid ~ indicator")
     ds.ind.h <- dcast(predict_X, formula = format.dcast, fun.aggregate = mean, value.var = "xsummary_value")
     
@@ -229,4 +229,4 @@ main <- function() {
 
 # For test
 #predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
-
+#predict.x <- get_predictx('CVDU02', 'P2|A5', 'UPAN120Q275A45|UP-ANOA-A2-267','l2tfin_avg', 2000, 6000, '2017-12-06 10:48:21', '2017-12-06 17:23:28')
