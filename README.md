@@ -5,7 +5,7 @@ For AVM/RCA data clean, there are some function support query predict informatio
 
 Normally engineer will prefer to query predict_data from db and with this information to read those nenecessary .Rdata.
 
-Buy this module support not only get those .Rdata from db's information but also can with the time interval to condition, this module can help you do some test on client envrionment to read .Rdata and no need db support, Good luck.
+But this module support not only get those .Rdata from db's information but also can with the time interval to condition, this module can help you do some test on client envrionment to read .Rdata and no need db support, Good luck.
 
 
 ### Usage:

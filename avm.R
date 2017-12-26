@@ -99,9 +99,13 @@ con_psql.avm <- dbConnect(drv_psql.avm,
 
 .read_midrdata <- function(mid) {
     # internal
-    rdata <- sprintf("%s%s", PATH, mid)
-    data <- lapply(rdata, function(x) mget(load(x)))
-    return (data) 
+    tryCatch({
+        rdata <- sprintf("%s%s", PATH, mid)
+        data <- lapply(rdata, function(x) mget(load(x)))
+        return (data)
+    }, error = function(e) {
+        conditionMessage(e)
+    }) 
 }
 
 
