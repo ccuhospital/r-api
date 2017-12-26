@@ -53,7 +53,7 @@ con_psql.avm <- dbConnect(drv_psql.avm,
                 glassid,
                 ysummary_value_hat,
                 mid,
-                regexp_split_to_table(fdc_ind_id, \'\\|')::integer as fdc_ind_id
+                split_part(fdc_ind_id, '|', 1) as fdc_ind_id
             FROM
                 avm_predict_summary 
             WHERE 1=1
@@ -81,7 +81,7 @@ con_psql.avm <- dbConnect(drv_psql.avm,
             %s b,
             indicator_info c
         WHERE 1=1
-        AND a.fdc_ind_id = b.fdc_ind_id
+        AND a.fdc_ind_id::integer = b.fdc_ind_id::integer
         AND b.svid||'_'||b.stepid||'_'||b.xstatistics = c.indicator
         ORDER BY a.mid
         ",toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper,
@@ -176,6 +176,10 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
     start.time, end.time) {
     predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
+    if (nrow(predict.x) == 0) {
+        return ('No data in this conditional.')
+    }
+    
     format.dcast <- formula("glassid ~ indicator")
     ds.ind.h <- dcast(predict_X, formula = format.dcast, fun.aggregate = mean, value.var = "xsummary_value")
     
