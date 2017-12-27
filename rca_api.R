@@ -15,9 +15,6 @@ library(jsonlite)
 source("RCA_function.R")
 source("avm.R")
 
-oldw <- getOption("warn")
-options(warn = 1)
-
 
 get_rca <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {

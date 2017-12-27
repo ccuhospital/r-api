@@ -37,6 +37,10 @@ logReset()
 basicConfig(level = 'FINEST')
 
 
+oldw <- getOption("warn")
+options(warn = 1)
+
+
 # load necessary function
 if(file.exists("env.R")) {
     source("env.R")
