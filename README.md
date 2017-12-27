@@ -10,6 +10,26 @@ But this module support not only get those .Rdata from db's information but also
 
 ### Usage:
 
+First you shoud build a `env.R` file, this is a environment variable for DB and Rdata path.
+
+```
+# env.R
+
+# Postgresql DB config.
+psql.type <- "PostgreSQL"
+psql.dbname <- "FDC"
+psql.host <- ""
+psql.port <- 5432
+psql.username <- ""
+psql.password <- ""
+
+# Global var
+PATH <- ".\\Batch_Output\\AVM_Model\\"
+```
+
+
+Then you can get rdata and predictx data like below:
+
 ```shell
 # Loading .R file.
 > source("avm.R")
@@ -27,4 +47,47 @@ But this module support not only get those .Rdata from db's information but also
 # get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 # only  ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper is *float* type, other parametr is *str* type
 > predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+```
+
+
+### RCA Function
+
+This is `root cause analysis` scheme for AVM, below will descript how to combine with RCA-apovshimben.
+Which simply means, the `RCA_Functiom.R` need the data source get from RCA-apovshimben.
+
+
+### Usage:
+
+```shell
+# Loading .R file.
+source("avm.R")
+source("RCA_function.R")
+
+# get rdata with DB, if return null mean no data
+rdata <- get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+    start.time, end.time)
+if (is.null(rdata)) {
+    return ()
+}
+
+# get predict.x with DB, if return null mean no data
+predict.x <- get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+    start.time, end.time)
+if (is.null(predict.x)) {
+    return ()
+}
+
+# execute the RCA_Function
+ret <- RCA_func(rdata, predict.x)
+return (ret)
+```
+
+or you can just call the api, the benefit is already do some basic error handle
+
+```shell
+# Loading .R file.
+source("rca_api.R")
+
+rca <- get_rca(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+    start.time, end.time)
 ```
