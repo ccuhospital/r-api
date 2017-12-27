@@ -81,7 +81,7 @@ ret <- RCA_func(rdata, predict.x)
 return (ret)
 ```
 
-or you can just call the api, the benefit is already do some basic error handle
+or you can just call the api, the benefit is already do some basic error handling
 
 ```shell
 # Loading .R file.
