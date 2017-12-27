@@ -17,13 +17,13 @@
 # get_traingingx_by_local(start.time, end.time)
 #> rdata <- get_trainingx_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
 # Get .Rdata with db's information
-# get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
+# get_trainingx_by_db(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 # only  ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper is *float* type, other parametr is *str* type
-#> rdata <- get_trainingx_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+#> rdata <- get_trainingx_by_db(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 # Get predict x
-# get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
+# get_predictx(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 # only  ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper is *float* type, other parametr is *str* type
-#> predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+#> predict.x <- get_predictx(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 
 
 # load necessary package
@@ -32,25 +32,46 @@ library(reshape2)
 library(logging)
 
 
-# load necessary function
-source("env.R")
-
-
 # setting logging
 logReset()
 basicConfig(level = 'FINEST')
 
 
-# DB connect
-drv_psql.avm <- dbDriver("PostgreSQL")
-con_psql.avm <- dbConnect(drv_psql.avm,
-    dbname = psql.dbname, host = psql.host,
-    port = psql.port, user = psql.username,
-    password = psql.password)
+# load necessary function
+if(file.exists("env.R")) {
+    source("env.R")
+    # DB connect
+    psql_db_info <- list(psql.dbname=psql.dbname, psql.host=psql.host, 
+        psql.port=psql.port, psql.username=psql.username, psql.password=psql.password)
+} else {
+    psql_db_info <- list(psql.dbname='', psql.host='', psql.port='', psql.username='', psql.password='')
+    PATH <- ''
+    logwarn(
+    "Not exist env.R Please set both variables 'psql_db_info' and 'PATH' first.
+    ex:
+    psql_db_info$psql.dbname <- ''
+    psql_db_info$psql.host <- ''
+    psql_db_info$psql.port <- {numeric}
+    psql_db_info$psql.username <- ''
+    psql_db_info$psql.password <- ''
+    PATH <- '.\\Batch_Output\\AVM_Model\\'
+
+    ex:
+    psql_db_info <- list(psql.dbname='', psql.host='', 
+    psql.port='{numeric}', psql.username='', psql.password=''), 
+    PATH <- '.\\Batch_Output\\AVM_Model\\'
+    ")
+}
 
 
-.get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+.get_predictx <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
+    drv_psql.avm <- dbDriver("PostgreSQL")
+    con_psql.avm <- dbConnect(drv_psql.avm,
+        dbname = psql_db_info$psql.dbname, host = psql_db_info$psql.host,
+        port = psql_db_info$psql.port, user = psql_db_info$psql.username,
+        password = psql_db_info$psql.password)
+
     sql <- sprintf(
         "
         WITH candidate_info AS (
@@ -93,11 +114,12 @@ con_psql.avm <- dbConnect(drv_psql.avm,
         start.time, end.time, sprintf("%s_fdc_ind_bt", tolower(toolid))
     )
     rawdata <- dbGetQuery(con_psql.avm, sql)
+    .psql_disconnectdb(con_psql.avm)
     return (rawdata)
 }
 
 
-.psql_disconnectdb <- function() {
+.psql_disconnectdb <- function(con_psql.avm) {
     on.exit(dbDisconnect(con_psql.avm, force = TRUE))
 }
 
@@ -138,10 +160,10 @@ con_psql.avm <- dbConnect(drv_psql.avm,
 }
 
 
-.get_midrdata_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+.get_midrdata_by_db <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
     # timeformat %Y-%m-%d %H:%M:%S
-    predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+    predict_X <- .get_predictx(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
     if (nrow(predict_X) == 0) {
         loginfo('No data in this conditional.')
@@ -166,7 +188,7 @@ get_trainingx_by_local <- function(start.time, end.time) {
 }
 
 
-get_trainingx_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+get_trainingx_by_db <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
     # type: toolid: string
     # type: chamber: string
@@ -178,7 +200,7 @@ get_trainingx_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_v
     # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
     # rtype: list()
 
-    mids <- .get_midrdata_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+    mids <- .get_midrdata_by_db(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
     if (is.null(mids)) {
         return ()
@@ -198,7 +220,7 @@ mid_mapping <- function(mids) {
 }
 
 
-get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+get_predictx <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
     # type: toolid: string
     # type: chamber: string
@@ -210,7 +232,7 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
     # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
     # rtype: list()
 
-    predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+    predict_X <- .get_predictx(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
     if (nrow(predict_X) == 0) {
         loginfo('No data in this conditional.')
@@ -243,5 +265,5 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
 
 
 # For test
-#predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
-#predict.x <- get_predictx('CVDU02', 'P2|A5', 'UPAN120Q275A45|UP-ANOA-A2-267','l2tfin_avg', 2000, 6000, '2017-12-06 10:48:21', '2017-12-06 17:23:28')
+#predict.x <- get_predictx(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+#predict.x <- get_predictx(psql_db_info, 'CVDU02', 'P2|A5', 'UPAN120Q275A45|UP-ANOA-A2-267','l2tfin_avg', 2000, 6000, '2017-12-06 10:48:21', '2017-12-06 17:23:28')
