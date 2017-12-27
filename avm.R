@@ -170,7 +170,6 @@ if(file.exists("env.R")) {
     predict_X <- .get_predictx(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
     if (nrow(predict_X) == 0) {
-        loginfo('No data in this conditional.')
         return ()
     }
     mids <- unique(predict_X$mid)
@@ -207,6 +206,7 @@ get_trainingx_by_db <- function(psql_db_info, toolid, chamber, recipe, ystatisti
     mids <- .get_midrdata_by_db(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
     if (is.null(mids)) {
+        loginfo('No data in this conditional.')
         return ()
     }
     mid.list <- .save_traing_x(mids)
