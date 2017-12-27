@@ -63,21 +63,13 @@ Which simply means, the `RCA_Functiom.R` need the data source get from RCA-apovs
 source("avm.R")
 source("RCA_function.R")
 
-# get rdata with DB, if return null mean no data
-rdata <- get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
-    start.time, end.time)
-if (is.null(rdata)) {
-    return ()
-}
+# get rdata with DB, if return NULL mean no data
+rdata <- get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 
-# get predict.x with DB, if return null mean no data
-predict.x <- get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
-    start.time, end.time)
-if (is.null(predict.x)) {
-    return ()
-}
+# get predict.x with DB, if return NULL mean no data
+predict.x <- get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 
-# execute the RCA_Function
+# execute the RCA_Function, handle by ma
 ret <- RCA_func(rdata, predict.x)
 return (ret)
 ```
