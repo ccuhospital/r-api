@@ -5,7 +5,7 @@
 # backend api for fontend web interface.
 # 
 #Usage:
-# ret <- get_rca(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+# rca <- get_rca(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
 #    start.time, end.time)
 
 oldw <- getOption("warn")
@@ -14,8 +14,15 @@ options(warn = 1)
 
 get_rca <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
-    # rca api: get_predict
-    # return list datastructure: TRAINING_X, PREDICT_X_INFO, Ystat
+    # type: toolid: string
+    # type: chamber: string
+    # type: recipe: string
+    # type: ystatistics: string
+    # type: ysummary_value_hat_lower: float
+    # type: ysummary_value_hat_upper: float
+    # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
+    # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
+    # rtype: list: TRAINING_X, PREDICT_X_INFO, Ystat
     
     # load necessary function
     source("avm.R")

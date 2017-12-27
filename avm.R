@@ -18,9 +18,11 @@
 #> rdata <- get_trainingx_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
 # Get .Rdata with db's information
 # get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
+# only  ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper is *float* type, other parametr is *str* type
 #> rdata <- get_trainingx_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 # Get predict x
 # get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
+# only  ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper is *float* type, other parametr is *str* type
 #> predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 
 
@@ -101,7 +103,6 @@ con_psql.avm <- dbConnect(drv_psql.avm,
 
 
 .read_midrdata <- function(mid) {
-    # internal
     rdata <- sprintf("%s%s", PATH, mid)
     data <- lapply(rdata, function(x) mget(load(x)))
     return (data)
@@ -109,7 +110,6 @@ con_psql.avm <- dbConnect(drv_psql.avm,
 
 
 .save_traing_x <- function(mids) {
-    # internal
     mid.list <- list()
     for (i in c(1:length(mids))) {
         mid.list[sprintf("MID%s", i)] <- .read_midrdata(mids[i])
@@ -119,7 +119,7 @@ con_psql.avm <- dbConnect(drv_psql.avm,
 
 
 .get_midrdata_by_local <- function(start.time, end.time) {
-    # timeformat %Y-%m-%d %H:%M:%S
+    # type: string imeformat %Y-%m-%d %H:%M:%S
     rdata.list <- list()
     start.time <- as.POSIXct(strptime(start.time, "%Y-%m-%d %H:%M:%S"))
     end.time <- as.POSIXct(strptime(end.time, "%Y-%m-%d %H:%M:%S"))
@@ -156,6 +156,10 @@ con_psql.avm <- dbConnect(drv_psql.avm,
 
 
 get_trainingx_by_local <- function(start.time, end.time) {
+    # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
+    # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
+    # rtype: list()
+
     mids <- .get_midrdata_by_local(start.time, end.time)
     mid.list <- .save_traing_x(mids)
     return (mid.list)
@@ -164,6 +168,16 @@ get_trainingx_by_local <- function(start.time, end.time) {
 
 get_trainingx_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
+    # type: toolid: string
+    # type: chamber: string
+    # type: recipe: string
+    # type: ystatistics: string
+    # type: ysummary_value_hat_lower: float
+    # type: ysummary_value_hat_upper: float
+    # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
+    # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
+    # rtype: list()
+
     mids <- .get_midrdata_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
     if (is.null(mids)) {
@@ -175,6 +189,8 @@ get_trainingx_by_db <- function(toolid, chamber, recipe, ystatistics, ysummary_v
 
 
 mid_mapping <- function(mids) {
+    # typel mids: list()
+    # rtype: list()
     mid.key <- lapply(seq(mids), function(i) {sprintf('MID%s', i)})
     dict <- c(mid.key)
     names(dict) <- c(mids)
@@ -184,6 +200,16 @@ mid_mapping <- function(mids) {
 
 get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
+    # type: toolid: string
+    # type: chamber: string
+    # type: recipe: string
+    # type: ystatistics: string
+    # type: ysummary_value_hat_lower: float
+    # type: ysummary_value_hat_upper: float
+    # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
+    # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
+    # rtype: list()
+
     predict_X <- .get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
     if (nrow(predict_X) == 0) {
@@ -216,21 +242,42 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
 }
 
 
-main <- function() {
-    # sample main function
+main <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+    start.time, end.time) {
+    # type: toolid: string
+    # type: chamber: string
+    # type: recipe: string
+    # type: ystatistics: string
+    # type: ysummary_value_hat_lower: float
+    # type: ysummary_value_hat_upper: float
+    # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
+    # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
+    
+    # load necessary function
+    source("RCA_function.R")
+
     tryCatch({
-        loginfo('Get local Rdata with time interval')
-        local <- get_trainingx_by_local('2017-09-21 23:00:00', '2017-12-31 00:00:00')
         loginfo('Get local Rdata with DB')
-        db <- get_trainingx_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X',
-                'l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
-        loginfo('Get local predict.x')
-        predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X',
-                'l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
-        ret <- list(predict = predict.x, local = local, db = db)
+        rdata <- get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+            start.time, end.time)
+        if (is.null(rdata)) {
+            return ()
+        }
+
+        loginfo('Get predict.x with DB')
+        predict.x <- get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+            start.time, end.time)
+        if (is.null(predict.x)) {
+            return ()
+        }
+
+        loginfo('Start rca main function')
+        ret <- RCA_func(rdata, predict.x)
         return (ret)
     }, error = function(e) {
+        logerror(e)
         conditionMessage(e)
+        return ()
     }, finally = {
         loginfo('Disable dbconnect')
         .psql_disconnectdb()
