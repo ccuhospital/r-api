@@ -28,7 +28,7 @@ get_rca <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary
     # type: ysummary_value_hat_upper: float
     # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
     # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
-    # rtype: list: TRAINING_X, PREDICT_X_INFO, Ystat
+    # rtype: JSON: TRAINING_X, PREDICT_X_INFO, Ystat
     
     # load necessary function
     source("avm.R")
