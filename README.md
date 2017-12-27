@@ -5,12 +5,12 @@ For AVM/RCA data clean, there are some function support query predict informatio
 
 Normally engineer will prefer to query predict_data from db and with this information to read those nenecessary .Rdata.
 
-But this module support not only get those .Rdata from db's information but also can with the time interval to condition, this module can help you do some test on client envrionment to read .Rdata and no need db support, Good luck.
+But this module support not only get those .Rdata from db's information but also can with the time interval to be the condition, this module can help you do some test on client envrionment to read .Rdata and no need db support, Good luck.
 
 
 ### Usage:
 
-First you shoud build a `env.R` file, this is a environment variable for DB and Rdata path. if not setting both variable `psql_db_info` and `PATH` is necessary.
+First you shoud build a `env.R` file, this is a environment variable for DB and Rdata path. But if not, setting both variable `psql_db_info` and `PATH` is necessary.
 
 ```
 # ex:
