@@ -242,49 +242,6 @@ get_predictx <- function(toolid, chamber, recipe, ystatistics, ysummary_value_ha
 }
 
 
-main <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
-    start.time, end.time) {
-    # type: toolid: string
-    # type: chamber: string
-    # type: recipe: string
-    # type: ystatistics: string
-    # type: ysummary_value_hat_lower: float
-    # type: ysummary_value_hat_upper: float
-    # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
-    # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
-    
-    # load necessary function
-    source("RCA_function.R")
-
-    tryCatch({
-        loginfo('Get local Rdata with DB')
-        rdata <- get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
-            start.time, end.time)
-        if (is.null(rdata)) {
-            return ()
-        }
-
-        loginfo('Get predict.x with DB')
-        predict.x <- get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
-            start.time, end.time)
-        if (is.null(predict.x)) {
-            return ()
-        }
-
-        loginfo('Start rca main function')
-        ret <- RCA_func(rdata, predict.x)
-        return (ret)
-    }, error = function(e) {
-        logerror(e)
-        conditionMessage(e)
-        return ()
-    }, finally = {
-        loginfo('Disable dbconnect')
-        .psql_disconnectdb()
-    })
-}
-
-
 # For test
 #predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 #predict.x <- get_predictx('CVDU02', 'P2|A5', 'UPAN120Q275A45|UP-ANOA-A2-267','l2tfin_avg', 2000, 6000, '2017-12-06 10:48:21', '2017-12-06 17:23:28')

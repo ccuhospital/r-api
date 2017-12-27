@@ -7,6 +7,8 @@
 #Usage:
 # rca <- get_rca(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
 #    start.time, end.time)
+# load necessary function
+source("RCA_function.R")
 
 oldw <- getOption("warn")
 options(warn = 1)
@@ -26,7 +28,6 @@ get_rca <- function(toolid, chamber, recipe, ystatistics, ysummary_value_hat_low
     
     # load necessary function
     source("avm.R")
-    source("RCA_function.R")
 
     tryCatch({
         loginfo('Get local Rdata with DB')
