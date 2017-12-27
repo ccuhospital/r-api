@@ -8,9 +8,6 @@
 #
 ##Author: Ma (2017/12/25)
 #
-oldw <- getOption("warn")
-options(warn = -1)
-
 library(pls)
 library(dplyr)
 
