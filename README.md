@@ -10,7 +10,7 @@ But this module support not only get those .Rdata from db's information but also
 
 ### Usage:
 
-First you shoud build a `env.R` file, this is a environment variable for DB and Rdata path. if not setting both variable psql_db_info and PATH is necessary.
+First you shoud build a `env.R` file, this is a environment variable for DB and Rdata path. if not setting both variable `psql_db_info` and `PATH` is necessary.
 
 ```
 # ex:
