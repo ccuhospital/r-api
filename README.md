@@ -80,6 +80,5 @@ or you can just call the api, the benefit is already do some basic error handle
 # Loading .R file.
 source("rca_api.R")
 
-rca <- get_rca(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
-    start.time, end.time)
+rca <- get_rca(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 ```
