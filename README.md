@@ -36,8 +36,8 @@ Then you can get rdata and predictx data like below:
 # Loading .R file.
 > source("avm.R")
 
-psql_db_info <- list(psql.dbname='', psql.host='', psql.port='{numeric}', psql.username='', psql.password='')
-
+# setting db config and Rdata path
+psql_db_info <- list(psql.dbname='', psql.host='', psql.port={numeric}, psql.username='', psql.password='')
 PATH <- .\\{path}\\''
 
 
