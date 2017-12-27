@@ -13,6 +13,7 @@ library(jsonlite)
 
 # load necessary function
 source("RCA_function.R")
+source("avm.R")
 
 oldw <- getOption("warn")
 options(warn = 1)
@@ -30,9 +31,6 @@ get_rca <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary
     # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
     # rtype: JSON: TRAINING_X, PREDICT_X_INFO, Ystat
     
-    # load necessary function
-    source("avm.R")
-
     tryCatch({
         loginfo('Get local Rdata with DB')
         rdata <- get_trainingx_by_db(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
