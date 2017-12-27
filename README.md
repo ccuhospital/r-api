@@ -10,21 +10,23 @@ But this module support not only get those .Rdata from db's information but also
 
 ### Usage:
 
-First you shoud build a `env.R` file, this is a environment variable for DB and Rdata path.
+First you shoud build a `env.R` file, this is a environment variable for DB and Rdata path. if not setting both variable psql_db_info and PATH is necessary.
 
 ```
-# env.R
+# ex:
+psql_db_info$psql.dbname <- ''
+psql_db_info$psql.host <- ''
+psql_db_info$psql.port <- {numeric}
+psql_db_info$psql.username <- ''
+psql_db_info$psql.password <- ''
 
-# Postgresql DB config.
-psql.type <- "PostgreSQL"
-psql.dbname <- "FDC"
-psql.host <- ""
-psql.port <- 5432
-psql.username <- ""
-psql.password <- ""
+PATH <- '.\\Batch_Output\\AVM_Model\\'
 
-# Global var
-PATH <- ".\\Batch_Output\\AVM_Model\\"
+
+# or other ex:
+psql_db_info <- list(psql.dbname='', psql.host='', psql.port='{numeric}', psql.username='', psql.password='')
+
+PATH <- '.\\Batch_Output\\AVM_Model\\'
 ```
 
 
@@ -33,20 +35,22 @@ Then you can get rdata and predictx data like below:
 ```shell
 # Loading .R file.
 > source("avm.R")
+
+psql_db_info <- list(psql.dbname, psql.host, psql.port, psql.username, psql.password)
    
 # Get .Rdata with time interval, and return list data structure.
 # get_traingingx_by_local(start.time, end.time)
 > rdata <- get_trainingx_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
 
 # Get .Rdata with db's information, and return list data structure.
-# get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
+# get_trainingx_by_db(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 # only  ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper is *float* type, other parametr is *str* type
-> rdata <- get_trainingx_by_db('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+> rdata <- get_trainingx_by_db(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 
 # Get predict x
-# get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
+# get_predictx(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 # only  ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper is *float* type, other parametr is *str* type
-> predict.x <- get_predictx('CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+> predict.x <- get_predictx(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 ```
 
 
@@ -64,10 +68,10 @@ source("avm.R")
 source("RCA_function.R")
 
 # get rdata with DB, if return NULL mean no data
-rdata <- get_trainingx_by_db(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
+rdata <- get_trainingx_by_db(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 
 # get predict.x with DB, if return NULL mean no data
-predict.x <- get_predictx(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
+predict.x <- get_predictx(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 
 # execute the RCA_Function, handle by ma
 ret <- RCA_func(rdata, predict.x)
@@ -80,5 +84,5 @@ or you can just call the api, the benefit is already do some basic error handle
 # Loading .R file.
 source("rca_api.R")
 
-rca <- get_rca(toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
+rca <- get_rca(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 ```
