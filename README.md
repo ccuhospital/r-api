@@ -24,9 +24,9 @@ PATH <- '.\\Batch_Output\\AVM_Model\\'
 
 
 # or other ex:
-psql_db_info <- list(psql.dbname='', psql.host='', psql.port='{numeric}', psql.username='', psql.password='')
+psql_db_info <- list(psql.dbname='', psql.host='', psql.port={numeric}, psql.username='', psql.password='')
 
-PATH <- '.\\Batch_Output\\AVM_Model\\'
+PATH <- '.\\{path}\\'
 ```
 
 
@@ -36,8 +36,11 @@ Then you can get rdata and predictx data like below:
 # Loading .R file.
 > source("avm.R")
 
-psql_db_info <- list(psql.dbname, psql.host, psql.port, psql.username, psql.password)
-   
+psql_db_info <- list(psql.dbname='', psql.host='', psql.port='{numeric}', psql.username='', psql.password='')
+
+PATH <- .\\{path}\\''
+
+
 # Get .Rdata with time interval, and return list data structure.
 # get_traingingx_by_local(start.time, end.time)
 > rdata <- get_trainingx_by_local('2017-12-05 00:00:00', '2017-12-05 14:00:00')
