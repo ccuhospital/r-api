@@ -116,7 +116,7 @@ source("RCA_function.R")
 rdata <- get_single_trainingx_by_db(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
 
 # get single predict.x with DB, if return NULL mean no data
-single.predict.x <- get_predictx(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
+single.predict.x <- get_single_predictx(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
 
 # execute the RCA_Function, handle by ma
 ret <- RCA_func(rdata, predict.x)
