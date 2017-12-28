@@ -146,10 +146,11 @@ if(file.exists("env.R")) {
         glassid <- .replace_glassid(glassid)
     } else {
         stop(
-        "glass id type error, should be vector, list or string(character)
-            ex: c('TL7CC0MAX', 'TL79M07AF'), 
-                list('TL7CC0MAX', 'TL79M07AF'), 
-                'TL7CC0MAX'"
+        "glassid type error, should be vector, list or string(character)
+        Input:: ", glassid, " Error type:: ", class(glassid), "\n
+        ex: c('TL7CC0MAX', 'TL79M07AF'), 
+             list('TL7CC0MAX', 'TL79M07AF'), 
+             'TL7CC0MAX'."
         )
     }
 
@@ -429,8 +430,8 @@ get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, 
 # For test -- single
 # > rdata <- get_single_trainingx_by_db(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
 #character
-# > single.predict.x <- single_predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+# > single_predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
 #list
-# > single.predict.x <- single_predict.x <- get_single_predictx(psql_db_info, list('TL7CC0MAX','TL79M07AF'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+# > single_predict.x <- get_single_predictx(psql_db_info, list('TL7CC0MAX','TL79M07AF'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
 #vector
-# > single.predict.x <- single_predict.x <- get_single_predictx(psql_db_info, c('TL7CC0MAX'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+# > single_predict.x <- get_single_predictx(psql_db_info, c('TL7CC0MAX'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
