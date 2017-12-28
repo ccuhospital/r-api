@@ -24,7 +24,7 @@
 # get_predictx(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
 # only  ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper is *float* type, other parametr is *str* type
 #> predict.x <- get_predictx(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
-
+#> single_predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
 
 # load necessary package
 library(RPostgreSQL)
@@ -123,6 +123,58 @@ if(file.exists("env.R")) {
 }
 
 
+.get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
+    drv_psql.avm <- dbDriver("PostgreSQL")
+    con_psql.avm <- dbConnect(drv_psql.avm,
+        dbname = psql_db_info$psql.dbname, host = psql_db_info$psql.host,
+        port = psql_db_info$psql.port, user = psql_db_info$psql.username,
+        password = psql_db_info$psql.password)
+
+    sql <- sprintf(
+        "
+        WITH candidate_info AS (
+            SELECT 
+                glassid,
+                ysummary_value_hat,
+                mid,
+                split_part(fdc_ind_id, '|', 1) as fdc_ind_id
+            FROM
+                avm_predict_summary 
+            WHERE 1=1
+            AND glassid = '%s'   
+            AND toolid = '%s'
+            AND chamber = '%s'
+            AND recipe = '%s'
+            AND ystatistics = '%s'
+        ),
+        indicator_info AS (
+            SELECT distinct indicator FROM avm_ind4model_ht t WHERE t.mid in ( SELECT distinct mid FROM candidate_info )
+        )
+        SELECT
+            a.glassid,
+            a.ysummary_value_hat,
+            b.stepid,
+            c.indicator,
+            b.xsummary_value,
+            b.fdc_ind_id,
+            a.mid
+        FROM    
+            candidate_info a,
+            %s b,
+            indicator_info c
+        WHERE 1=1
+        AND a.fdc_ind_id::integer = b.fdc_ind_id::integer
+        AND b.svid||'_'||b.stepid||'_'||b.xstatistics = c.indicator
+        ORDER BY a.mid
+        ",glassid, toolid, chamber, recipe, ystatistics,
+        sprintf("%s_fdc_ind_bt", tolower(toolid))
+    )
+    rawdata <- dbGetQuery(con_psql.avm, sql)
+    .psql_disconnectdb(con_psql.avm)
+    return (rawdata)
+}
+
+
 .psql_disconnectdb <- function(con_psql.avm) {
     on.exit(dbDisconnect(con_psql.avm, force = TRUE))
 }
@@ -180,6 +232,20 @@ if(file.exists("env.R")) {
 }
 
 
+.get_single_midrdata_by_db <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
+    # timeformat %Y-%m-%d %H:%M:%S
+    predict_X <- .get_single_predictx(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
+    if (nrow(predict_X) == 0) {
+        return ()
+    }
+    mids <- unique(predict_X$mid)
+    rdata.list <- lapply(mids, function(mid) {
+        mid <- sprintf('%s.Rdata', mid)
+    })
+    return (rdata.list)
+}
+
+
 get_trainingx_by_local <- function(start.time, end.time) {
     # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
     # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
@@ -205,6 +271,27 @@ get_trainingx_by_db <- function(psql_db_info, toolid, chamber, recipe, ystatisti
 
     mids <- .get_midrdata_by_db(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
         start.time, end.time)
+    if (is.null(mids)) {
+        loginfo('No data in this conditional.')
+        return ()
+    }
+    mid.list <- .save_traing_x(mids)
+    return (mid.list)
+}
+
+
+get_single_trainingx_by_db <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
+    # type: toolid: string
+    # type: chamber: string
+    # type: recipe: string
+    # type: ystatistics: string
+    # type: ysummary_value_hat_lower: float
+    # type: ysummary_value_hat_upper: float
+    # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
+    # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
+    # rtype: list()
+
+    mids <- .get_single_midrdata_by_db(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
     if (is.null(mids)) {
         loginfo('No data in this conditional.')
         return ()
@@ -268,6 +355,49 @@ get_predictx <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysu
 }
 
 
-# For test
+get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
+    # type: glassid: string
+    # type: toolid: string
+    # type: chamber: string
+    # type: recipe: string
+    # type: ystatistics: string
+    # rtype: list()
+
+    predict_X <- .get_single_predictx(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
+    if (nrow(predict_X) == 0) {
+        loginfo('No data in this conditional.')
+        return ()
+    }
+    format.dcast <- formula("glassid ~ indicator")
+    ds.ind.h <- dcast(predict_X, formula = format.dcast, fun.aggregate = mean, value.var = "xsummary_value")
+    
+    # build mid mapping table
+    mids <- unique(predict_X$mid)
+    mid.dict <- mid_mapping(mids)
+    
+    # remove duplicated and sort by predict_x
+    gid.noduplicate <- predict_X[!duplicated(predict_X$glassid),]
+    NAME <- c()
+    ysummary_value_hat <- c()
+    for (index in 1:nrow(gid.noduplicate)) {
+        for (gid in ds.ind.h$glassid) {
+            row <- gid.noduplicate[index,]
+            if (gid == row$glassid) {
+                NAME <- c(NAME, mid.dict[[row$mid]])
+                ysummary_value_hat <- c(ysummary_value_hat, row$ysummary_value_hat)
+            }
+        }
+    }
+    ds.ind.h <- cbind(ysummary_value_hat, ds.ind.h)
+    ds.ind.h <- cbind(NAME, ds.ind.h)
+    return (ds.ind.h)
+}
+
+# For test -- mutiple
+#rdata <- get_trainingx_by_db(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 #predict.x <- get_predictx(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
 #predict.x <- get_predictx(psql_db_info, 'CVDU02', 'P2|A5', 'UPAN120Q275A45|UP-ANOA-A2-267','l2tfin_avg', 2000, 6000, '2017-12-06 10:48:21', '2017-12-06 17:23:28')
+
+# For test -- single
+#rdata <- get_single_trainingx_by_db(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+#single.predict.x <- single_predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
