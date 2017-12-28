@@ -57,6 +57,29 @@ PATH <- .\\{path}\\''
 ```
 
 
+But if you want to with condition is `glassid`, please follow below flow:
+
+```shell
+# Loading .R file.
+> source("avm.R")
+
+# setting db config and Rdata path
+psql_db_info <- list(psql.dbname='', psql.host='', psql.port={numeric}, psql.username='', psql.password='')
+PATH <- .\\{path}\\''
+
+
+# Get .Rdata with db's information, and return list data structure.
+# get_single_trainingx_by_db(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
+# ALL parametr are *str* type
+> rdata <- get_trainingx_by_db(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+
+# Get single predict x
+# get_single_predictx(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
+# All parametr is *str* type
+> single.predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+```
+
+
 ### RCA Function
 
 This is `root cause analysis` scheme for AVM, below will descript how to combine with RCA-apovshimben.
@@ -65,6 +88,7 @@ Which simply means, the `RCA_Functiom.R` need the data source get from RCA-apovs
 
 ### Usage:
 
+With time interval and ysummary_value
 ```shell
 # Loading .R file.
 source("avm.R")
@@ -81,11 +105,33 @@ ret <- RCA_func(rdata, predict.x)
 return (ret)
 ```
 
+
+With glassid
+```shell
+# Loading .R file.
+source("avm.R")
+source("RCA_function.R")
+
+# get rdata with DB, if return NULL mean no data
+rdata <- get_single_trainingx_by_db(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
+
+# get single predict.x with DB, if return NULL mean no data
+single.predict.x <- get_predictx(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
+
+# execute the RCA_Function, handle by ma
+ret <- RCA_func(rdata, predict.x)
+return (ret)
+```
+
 or you can just call the api, the benefit is already do some basic error handling
 
 ```shell
 # Loading .R file.
 source("rca_api.R")
 
+# with time and ysummary_value
 rca <- get_rca(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, start.time, end.time)
+
+# with glassid
+single.rca <- get_single_rca(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
 ```
