@@ -393,11 +393,14 @@ get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, 
     return (ds.ind.h)
 }
 
+
+
 # For test -- mutiple
-#rdata <- get_trainingx_by_db(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
-#predict.x <- get_predictx(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
-#predict.x <- get_predictx(psql_db_info, 'CVDU02', 'P2|A5', 'UPAN120Q275A45|UP-ANOA-A2-267','l2tfin_avg', 2000, 6000, '2017-12-06 10:48:21', '2017-12-06 17:23:28')
+# > rdata <- get_trainingx_by_db(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+# > predict.x <- get_predictx(psql_db_info, 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X','l2tfin_uniform', 0, 0.1, '2017-09-21 23:00:00', '2017-09-24 03:00:00')
+# > predict.x <- get_predictx(psql_db_info, 'CVDU02', 'P2|A5', 'UPAN120Q275A45|UP-ANOA-A2-267','l2tfin_avg', 2000, 6000, '2017-12-06 10:48:21', '2017-12-06 17:23:28')
 
 # For test -- single
-#rdata <- get_single_trainingx_by_db(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
-#single.predict.x <- single_predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+# > rdata <- get_single_trainingx_by_db(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+# > single.predict.x <- single_predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+
