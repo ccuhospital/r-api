@@ -123,7 +123,36 @@ if(file.exists("env.R")) {
 }
 
 
+.replace_glassid <- function(glassid) {
+    gids <- strsplit(glassid, ',')
+    for (index in 1:length(gids)) {
+        # remove empty
+        gid <- gsub("^\\s+|\\s+$", "", gids[index])
+        if (index == 1) {
+            glassid <- sprintf("'%s'", gid)
+        } else {
+            glassid <- sprintf("%s,'%s'", glassid, gid)
+        }
+    }
+    return (glassid)
+}
+
+
 .get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
+    if (is.character(glassid)) {
+        glassid <- .replace_glassid(glassid)
+    } else if(is.list(glassid)) {
+        glassid <- sapply(glassid, paste0, collapse="") # unlist(glassid), paste(glassid)??
+        glassid <- .replace_glassid(glassid)
+    } else {
+        stop(
+        "glass id type error, should be vector, list or string(character)
+            ex: c('TL7CC0MAX', 'TL79M07AF'), 
+                list('TL7CC0MAX', 'TL79M07AF'), 
+                'TL7CC0MAX'"
+        )
+    }
+
     drv_psql.avm <- dbDriver("PostgreSQL")
     con_psql.avm <- dbConnect(drv_psql.avm,
         dbname = psql_db_info$psql.dbname, host = psql_db_info$psql.host,
@@ -141,7 +170,7 @@ if(file.exists("env.R")) {
             FROM
                 avm_predict_summary 
             WHERE 1=1
-            AND glassid = '%s'   
+            AND glassid in (%s)   
             AND toolid = '%s'
             AND chamber = '%s'
             AND recipe = '%s'
@@ -281,14 +310,11 @@ get_trainingx_by_db <- function(psql_db_info, toolid, chamber, recipe, ystatisti
 
 
 get_single_trainingx_by_db <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
+    # type: glassid: string, vector or list
     # type: toolid: string
     # type: chamber: string
     # type: recipe: string
     # type: ystatistics: string
-    # type: ysummary_value_hat_lower: float
-    # type: ysummary_value_hat_upper: float
-    # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
-    # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
     # rtype: list()
 
     mids <- .get_single_midrdata_by_db(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
@@ -356,7 +382,7 @@ get_predictx <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysu
 
 
 get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
-    # type: glassid: string
+    # type: glassid: string, vector or list
     # type: toolid: string
     # type: chamber: string
     # type: recipe: string
@@ -402,5 +428,9 @@ get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, 
 
 # For test -- single
 # > rdata <- get_single_trainingx_by_db(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+#character
 # > single.predict.x <- single_predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
-
+#list
+# > single.predict.x <- single_predict.x <- get_single_predictx(psql_db_info, list('TL7CC0MAX','TL79M07AF'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+#vector
+# > single.predict.x <- single_predict.x <- get_single_predictx(psql_db_info, c('TL7CC0MAX'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
