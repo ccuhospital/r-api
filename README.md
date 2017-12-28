@@ -71,7 +71,7 @@ PATH <- .\\{path}\\''
 # Get .Rdata with db's information, and return list data structure.
 # get_single_trainingx_by_db(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
 # ALL parameters are *str* type
-> rdata <- get_trainingx_by_db(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+> rdata <- get_single_trainingx_by_db(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
 
 # Get single predict x
 # get_single_predictx(psql_db_info, glassid, toolid, chamber, recipe, ystatistics)
