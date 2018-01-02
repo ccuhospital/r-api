@@ -247,6 +247,15 @@ if(file.exists("env.R")) {
 }
 
 
+.get_rdata_list <- function(predict_X) {
+    mids <- unique(predict_X$mid)
+    rdata.list <- lapply(mids, function(mid) {
+        mid <- sprintf('%s.Rdata', mid)
+    })
+    return (rdata.list)
+}
+
+
 .get_midrdata_by_db <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
     start.time, end.time) {
     # timeformat %Y-%m-%d %H:%M:%S
@@ -255,10 +264,8 @@ if(file.exists("env.R")) {
     if (nrow(predict_X) == 0) {
         return ()
     }
-    mids <- unique(predict_X$mid)
-    rdata.list <- lapply(mids, function(mid) {
-        mid <- sprintf('%s.Rdata', mid)
-    })
+
+    rdata.list <- .get_rdata_list(predict_X)
     return (rdata.list)
 }
 
@@ -269,10 +276,8 @@ if(file.exists("env.R")) {
     if (nrow(predict_X) == 0) {
         return ()
     }
-    mids <- unique(predict_X$mid)
-    rdata.list <- lapply(mids, function(mid) {
-        mid <- sprintf('%s.Rdata', mid)
-    })
+    
+    rdata.list <- .get_rdata_list(predict_X)
     return (rdata.list)
 }
 
