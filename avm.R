@@ -123,9 +123,7 @@ if(file.exists("env.R")) {
 }
 
 
-.replace_glassid <- function(glassid) {
-    #gids <- strsplit(glassid, ',')
-    gids <- glassid
+.replace_glassid <- function(gids) {
     for (index in 1:length(gids)) {
         # remove empty
         gid <- gsub("^\\s+|\\s+$", "", gids[index])
@@ -139,7 +137,8 @@ if(file.exists("env.R")) {
 }
 
 
-.get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
+
+.check_glassid <- function(glassid) {
     if (is.character(glassid)) {
         if (length(glassid) == 1) {
             glassid <- as.vector(strsplit(glassid, ',')[[1]])
@@ -152,13 +151,19 @@ if(file.exists("env.R")) {
         glassid <- .replace_glassid(glassid)
     } else {
         stop(
-        "glassid type error, should be vector, list or string(character)
+        "glassid type error, should be vector, list or character
         Input:: ", glassid, " Error type:: ", class(glassid), "\n
-        ex: c('TL7CC0MAX', 'TL79M07AF'), 
-             list('TL7CC0MAX', 'TL79M07AF'), 
-             'TL7CC0MAX'."
+        EX: c('TL79M3FBC,TL7990DAC'); c('TL79M3FBC', 'TL7990DAC'), 
+             list('TL7CC0MAX'); list('TL79M3FBC', 'TL7990DAC'), 
+             'TL7CC0MAX'; 'TL79M3FBC,TL7990DAC'."
         )
     }
+    return (glassid)
+}
+
+
+.get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
+    glassid <- .check_glassid(glassid)
 
     drv_psql.avm <- dbDriver("PostgreSQL")
     con_psql.avm <- dbConnect(drv_psql.avm,
