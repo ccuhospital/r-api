@@ -143,7 +143,6 @@ if(file.exists("env.R")) {
         glassid <- as.vector(strsplit(glassid, ',')[[1]])
         glassid <- .replace_glassid(glassid)
     } else if(is.list(glassid)) {
-        print('list') 
         glassid <- sapply(glassid, paste0, collapse="") # unlist(glassid), paste(glassid)??
         glassid <- .replace_glassid(glassid)
     } else {
