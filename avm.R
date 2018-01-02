@@ -140,8 +140,10 @@ if(file.exists("env.R")) {
 
 .get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
     if (is.character(glassid)) {
+        glassid <- as.vector(strsplit(glassid, ',')[[1]])
         glassid <- .replace_glassid(glassid)
     } else if(is.list(glassid)) {
+        print('list') 
         glassid <- sapply(glassid, paste0, collapse="") # unlist(glassid), paste(glassid)??
         glassid <- .replace_glassid(glassid)
     } else {
@@ -431,6 +433,8 @@ get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, 
 # > rdata <- get_single_trainingx_by_db(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
 #character
 # > single.predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+#mutiple character
+# > single.predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX,TL79M07AF', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
 #list
 # > single.predict.x <- get_single_predictx(psql_db_info, list('TL7CC0MAX','TL79M07AF'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
 #vector
