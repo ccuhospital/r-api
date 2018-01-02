@@ -124,7 +124,8 @@ if(file.exists("env.R")) {
 
 
 .replace_glassid <- function(glassid) {
-    gids <- strsplit(glassid, ',')
+    #gids <- strsplit(glassid, ',')
+    gids <- glassid
     for (index in 1:length(gids)) {
         # remove empty
         gid <- gsub("^\\s+|\\s+$", "", gids[index])
@@ -140,10 +141,14 @@ if(file.exists("env.R")) {
 
 .get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
     if (is.character(glassid)) {
-        glassid <- as.vector(strsplit(glassid, ',')[[1]])
+        if (length(glassid) == 1) {
+            glassid <- as.vector(strsplit(glassid, ',')[[1]])
+        }
+        glassid <- strsplit(glassid, ',')
         glassid <- .replace_glassid(glassid)
     } else if(is.list(glassid)) {
         glassid <- sapply(glassid, paste0, collapse="") # unlist(glassid), paste(glassid)??
+        glassid <- strsplit(glassid, ',')
         glassid <- .replace_glassid(glassid)
     } else {
         stop(
@@ -422,11 +427,19 @@ get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, 
 
 # For test -- single
 # > rdata <- get_single_trainingx_by_db(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
-#character
+
+#character, mutiple character
 # > single.predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
-#mutiple character
 # > single.predict.x <- get_single_predictx(psql_db_info, 'TL7CC0MAX,TL79M07AF', 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+
 #list
+# > single.predict.x <- get_single_predictx(psql_db_info, list('TL7CC0MAX'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
 # > single.predict.x <- get_single_predictx(psql_db_info, list('TL7CC0MAX','TL79M07AF'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
-#vector
+
+#vector test set1
 # > single.predict.x <- get_single_predictx(psql_db_info, c('TL7CC0MAX'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+# > single.predict.x <- get_single_predictx(psql_db_info, c('TL7CC0MAX', 'TL79M07AF'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+# > single.predict.x <- get_single_predictx(psql_db_info, c('TL7CC0MAX,TL79M07AF'), 'CVDU01', 'P2|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_avg')
+#vector test set2
+# > single.predict.x <- .get_single_predictx(psql_db_info, c('TL79M3FBC', 'TL7990DAC'), 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_uniform')
+# > single.predict.x <- .get_single_predictx(psql_db_info, c('TL79M3FBC,TL7990DAC'), 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_uniform')
