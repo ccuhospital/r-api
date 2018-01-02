@@ -330,7 +330,7 @@ get_single_trainingx_by_db <- function(psql_db_info, glassid, toolid, chamber, r
 
 
 mid_mapping <- function(mids) {
-    # typel mids: list()
+    # type mids: list()
     # rtype: list()
     mid.key <- lapply(seq(mids), function(i) {sprintf('MID%s', i)})
     dict <- c(mid.key)
@@ -339,24 +339,9 @@ mid_mapping <- function(mids) {
 }
 
 
-get_predictx <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
-    start.time, end.time) {
-    # type: toolid: string
-    # type: chamber: string
-    # type: recipe: string
-    # type: ystatistics: string
-    # type: ysummary_value_hat_lower: float
-    # type: ysummary_value_hat_upper: float
-    # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
-    # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
-    # rtype: list()
-
-    predict_X <- .get_predictx(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
-        start.time, end.time)
-    if (nrow(predict_X) == 0) {
-        loginfo('No data in this conditional.')
-        return ()
-    }
+.predictx_to_dsind <- function(predict_X) {
+    # type: predict_X: data.frame
+    
     format.dcast <- formula("glassid ~ indicator")
     ds.ind.h <- dcast(predict_X, formula = format.dcast, fun.aggregate = mean, value.var = "xsummary_value")
     
@@ -383,6 +368,29 @@ get_predictx <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysu
 }
 
 
+get_predictx <- function(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+    start.time, end.time) {
+    # type: toolid: string
+    # type: chamber: string
+    # type: recipe: string
+    # type: ystatistics: string
+    # type: ysummary_value_hat_lower: float
+    # type: ysummary_value_hat_upper: float
+    # type: start.time: string timeformat %Y-%m-%d %H:%M:%S
+    # type: end.time: string timeformat %Y-%m-%d %H:%M:%S
+    # rtype: list()
+
+    predict_X <- .get_predictx(psql_db_info, toolid, chamber, recipe, ystatistics, ysummary_value_hat_lower, ysummary_value_hat_upper, 
+        start.time, end.time)
+    if (nrow(predict_X) == 0) {
+        loginfo('No data in this conditional.')
+        return ()
+    }
+    ds.ind.h <- .predictx_to_dsind(predict_X)
+    return (ds.ind.h)
+}
+
+
 get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, ystatistics) {
     # type: glassid: string, vector or list
     # type: toolid: string
@@ -396,28 +404,7 @@ get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, 
         loginfo('No data in this conditional.')
         return ()
     }
-    format.dcast <- formula("glassid ~ indicator")
-    ds.ind.h <- dcast(predict_X, formula = format.dcast, fun.aggregate = mean, value.var = "xsummary_value")
-    
-    # build mid mapping table
-    mids <- unique(predict_X$mid)
-    mid.dict <- mid_mapping(mids)
-    
-    # remove duplicated and sort by predict_x
-    gid.noduplicate <- predict_X[!duplicated(predict_X$glassid),]
-    NAME <- c()
-    ysummary_value_hat <- c()
-    for (index in 1:nrow(gid.noduplicate)) {
-        for (gid in ds.ind.h$glassid) {
-            row <- gid.noduplicate[index,]
-            if (gid == row$glassid) {
-                NAME <- c(NAME, mid.dict[[row$mid]])
-                ysummary_value_hat <- c(ysummary_value_hat, row$ysummary_value_hat)
-            }
-        }
-    }
-    ds.ind.h <- cbind(ysummary_value_hat, ds.ind.h)
-    ds.ind.h <- cbind(NAME, ds.ind.h)
+    ds.ind.h <- .predictx_to_dsind(predict_X)
     return (ds.ind.h)
 }
 
