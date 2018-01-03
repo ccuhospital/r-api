@@ -82,6 +82,7 @@ if(file.exists("env.R")) {
             SELECT 
                 glassid,
                 ysummary_value_hat,
+                proc_end_time,
                 mid,
                 split_part(fdc_ind_id, '|', 1) as fdc_ind_id
             FROM
@@ -105,7 +106,8 @@ if(file.exists("env.R")) {
             c.indicator,
             b.xsummary_value,
             b.fdc_ind_id,
-            a.mid
+            a.mid,
+            a.proc_end_time
         FROM    
             candidate_info a,
             %s b,
@@ -177,6 +179,7 @@ if(file.exists("env.R")) {
             SELECT 
                 glassid,
                 ysummary_value_hat,
+                proc_end_time,
                 mid,
                 split_part(fdc_ind_id, '|', 1) as fdc_ind_id
             FROM
@@ -198,7 +201,8 @@ if(file.exists("env.R")) {
             c.indicator,
             b.xsummary_value,
             b.fdc_ind_id,
-            a.mid
+            a.mid,
+            a.proc_end_time
         FROM    
             candidate_info a,
             %s b,
@@ -368,16 +372,19 @@ mid_mapping <- function(mids) {
     gid.noduplicate <- predict_X[!duplicated(predict_X$glassid),]
     NAME <- c()
     ysummary_value_hat <- c()
+    proc_end_time <- c()
     for (index in 1:nrow(gid.noduplicate)) {
         for (gid in ds.ind.h$glassid) {
             row <- gid.noduplicate[index,]
             if (gid == row$glassid) {
                 NAME <- c(NAME, mid.dict[[row$mid]])
                 ysummary_value_hat <- c(ysummary_value_hat, row$ysummary_value_hat)
+                proc_end_time <- c(proc_end_time, row$proc_end_time)
             }
         }
     }
     ds.ind.h <- cbind(ysummary_value_hat, ds.ind.h)
+    ds.ind.h <- cbind(proc_end_time, ds.ind.h)
     ds.ind.h <- cbind(NAME, ds.ind.h)
     return (ds.ind.h)
 }
@@ -449,3 +456,7 @@ get_single_predictx <- function(psql_db_info, glassid, toolid, chamber, recipe, 
 #vector test set2
 # > single.predict.x <- get_single_predictx(psql_db_info, c('TL79M3FBC', 'TL7990DAC'), 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_uniform')
 # > single.predict.x <- get_single_predictx(psql_db_info, c('TL79M3FBC,TL7990DAC'), 'CVDU01', 'P6|A5', 'UPAN120Q275A45|P-ANOA-A2-267X', 'l2tfin_uniform')
+
+#proc_end_time convert from numeric to timeformat
+# > as.POSIXct(single.predict.x$proc_end_time, origin = '1970-01-01')
+# > as.POSIXct(predict.x$proc_end_time, origin = '1970-01-01')
