@@ -384,6 +384,7 @@ mid_mapping <- function(mids) {
         }
     }
     ds.ind.h <- cbind(ysummary_value_hat, ds.ind.h)
+    class(proc_end_time) = c('POSIXt','POSIXct')
     ds.ind.h <- cbind(proc_end_time, ds.ind.h)
     ds.ind.h <- cbind(NAME, ds.ind.h)
     return (ds.ind.h)
