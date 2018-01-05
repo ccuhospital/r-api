@@ -139,7 +139,6 @@ if(file.exists("env.R")) {
 }
 
 
-
 .check_glassid <- function(glassid) {
     if (is.character(glassid)) {
         if (length(glassid) == 1) {
@@ -384,7 +383,7 @@ mid_mapping <- function(mids) {
         }
     }
     ds.ind.h <- cbind(ysummary_value_hat, ds.ind.h)
-    class(proc_end_time) = c('POSIXt','POSIXct')
+    class(proc_end_time) = c('POSIXt','POSIXct') # Strong transformation
     ds.ind.h <- cbind(proc_end_time, ds.ind.h)
     ds.ind.h <- cbind(NAME, ds.ind.h)
     return (ds.ind.h)
